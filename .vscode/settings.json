@@ -1,0 +1,6 @@
+{
+  "cmake.configureArgs": [
+    "-DCMAKE_TOOLCHAIN_FILE=arm-none-eabi.cmake"
+  ],
+  "cmake.generator": "Ninja"
+}

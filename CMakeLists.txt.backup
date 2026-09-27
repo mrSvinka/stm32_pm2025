@@ -37,8 +37,6 @@ set(LINKER_FLAGS "${LINKER_FLAGS} -Xlinker -T ${CMAKE_CURRENT_SOURCE_DIR}/stm32f
 set(LINKER_FLAGS "${LINKER_FLAGS} -Wl,--gc-sections ")
 # Passing flags to cmake linker variable
 set(CMAKE_C_LINK_FLAGS ${LINKER_FLAGS})
-set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_C_COMPILER> <FLAGS> <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
-set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
 
 message("DIRECTORY ${EXECUTABLE_OUTPUT_PATH}")
 
@@ -51,12 +49,13 @@ add_definitions(-DSTM32F10X_MD)
 include_directories(cmsis)
 include_directories(stm32)
 
-
-
 include(ExternalProject)
 ExternalProject_Add(opencm3_build SOURCE_DIR ${OPENCM3_PATH}
    CONFIGURE_COMMAND ""
-   BUILD_COMMAND ""
+   BUILD_COMMAND
+   PREFIX=${ARM_TOOLCHAIN_PATH}arm-none-eabi-
+   TARGETS=stm32/f1
+   make -C <SOURCE_DIR>
    BUILD_IN_SOURCE TRUE
    INSTALL_COMMAND "")
 
@@ -79,7 +78,7 @@ add_library(opencm3 STATIC IMPORTED)
 add_dependencies(opencm3 opencm3_build)
 # Set location of library and it's public headers
 set_target_properties(opencm3 PROPERTIES IMPORTED_LOCATION ${OPENCM3_PATH}/lib/libopencm3_stm32f1.a INTERFACE_INCLUDE_DIRECTORIES ${OPENCM3_INC_DIRS})
-target_link_libraries(${PROJECT_NAME} -nostdlib opencm3)
+target_link_libraries(${PROJECT_NAME} opencm3)
 
 # Targets for make firmware in different formats
 set(BIN_TARGET "${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}.bin")
